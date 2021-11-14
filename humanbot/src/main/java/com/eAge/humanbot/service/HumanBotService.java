@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
+import com.eAge.humanbot.exceptions.InvalidQueryException;
+import com.eAge.humanbot.exceptions.InvalidQueryResponseException;
 import com.eAge.humanbot.model.ClientQuery;
 import com.eAge.humanbot.model.QueryModel;
 import com.eAge.humanbot.utils.MathUtils;
@@ -33,22 +35,17 @@ public class HumanBotService {
 
 	private void validateClientQuery(String clientQuestion) throws Exception {
 		if(clientQuestion.indexOf("question with numbers to add")<0) {
-			throw new Exception("Invalid Query!");
+			throw new InvalidQueryException("Invalid Query!");
 		}
 	}
 
 	private String extractQuery(String queryResponse) throws Exception {
 		if(queryResponse.indexOf("\"")<0) {
-			throw new Exception("Invalid Response");
+			throw new InvalidQueryException("Invalid Response");
 		}
 		String question = queryResponse.substring(queryResponse.indexOf("\"")+1);
 		question = question.substring(0,question.indexOf("\""));
 		return question.trim();
-	}
-
-	private void validateQuestion(String question) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public String answerToQuery(String queryResponse) throws Exception {
@@ -69,19 +66,18 @@ public class HumanBotService {
 
 	private QueryModel mapToQueryModel(String queryResponse) throws Exception {
 		String question = extractQuery(queryResponse);
-		validateQuestion(question);
 		String answer = extractAnswer(queryResponse);
 		try {
 			Integer.valueOf(answer);
 		} catch (NumberFormatException nfe) {
-			throw new Exception(THAT_S_WRONG_PLEASE_TRY_AGAIN);
+			throw new InvalidQueryResponseException(THAT_S_WRONG_PLEASE_TRY_AGAIN);
 		}
 		return new QueryModel(question, Integer.valueOf(answer));
 	}
 
 	private String extractAnswer(String queryResponse) throws Exception {
 		if(queryResponse.indexOf(ANSWER_IS)<0) {
-			throw new Exception("Invalid Query Response!");
+			throw new InvalidQueryException("Invalid Query Response!");
 		}
 
 		String response = queryResponse.substring(queryResponse.indexOf(ANSWER_IS)+ANSWER_IS.length());

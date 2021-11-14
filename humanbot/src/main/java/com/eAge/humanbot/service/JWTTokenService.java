@@ -11,6 +11,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.eAge.humanbot.config.JWTConfig;
+import com.eAge.humanbot.exceptions.InvalidJWTException;
 
 @Service
 public class JWTTokenService {
@@ -47,11 +48,11 @@ public class JWTTokenService {
 		DecodedJWT jwt = jwtVerifier.verify(token);
 		Date currentDate = new Date();
 		if(jwt.getExpiresAt().before(currentDate)) {
-			throw new Exception("Token expired!");
+			throw new InvalidJWTException("Token expired!");
 		}
 		String subject = jwt.getSubject();
 		if(queryResponse.indexOf(subject) <0) {
-			throw new Exception("Invalid query!. Query doesn't match the earlier query request!");
+			throw new InvalidJWTException("Invalid query!. Query doesn't match the earlier query request!");
 		}
 		return jwt;
 	}
