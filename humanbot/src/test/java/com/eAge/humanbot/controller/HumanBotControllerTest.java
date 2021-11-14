@@ -3,6 +3,7 @@ package com.eAge.humanbot.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.eAge.humanbot.model.ClientQuery;
 import com.eAge.humanbot.service.HumanBotService;
 import com.eAge.humanbot.service.JWTTokenService;
 
@@ -22,7 +24,7 @@ import com.eAge.humanbot.service.JWTTokenService;
 public class HumanBotControllerTest {
 
 	@MockBean
-	private HumanBotService taskService;
+	private HumanBotService botService;
 
 	@MockBean
 	private JWTTokenService jwtTokenService;
@@ -42,6 +44,15 @@ public class HumanBotControllerTest {
 	public void whenGetRequestToQueryWithOutQueryParam_thenErrorResponse() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.get("/"))
 		.andExpect(MockMvcResultMatchers.status().is(400));
+	}
+	
+	@Test
+	public void whenGetRequestToQueryWithQueryParam_thenOkResponse() throws Exception {
+		ClientQuery clientQuery = new ClientQuery("Here you go, solve the question: ", "\"Please sum the numbers 0,13,10\".");
+		Mockito.when(botService.handleQuery(Mockito.anyString())).thenReturn(clientQuery);
+		mockMvc.perform(MockMvcRequestBuilders.get("/")
+				.queryParam("query", "Hey Service, can you provide me a question with numbers to add?"))
+		.andExpect(MockMvcResultMatchers.status().isOk());
 	}
 
 	@Test
